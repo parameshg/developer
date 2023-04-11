@@ -51,7 +51,7 @@ namespace Developer.Api
 
             services.AddSingleton<IDynamoDBContext, DynamoDBContext>(i => new DynamoDBContext(i.GetService<IAmazonDynamoDB>()));
 
-            services.AddTransient<IRepository, DynamoRepository>();
+            services.AddTransient<IProjectRepository, ProjectRepository>();
 
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining(typeof(Startup)));
 

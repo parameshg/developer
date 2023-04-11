@@ -3,12 +3,11 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Developer.Api.Requests
 {
-    public class DeleteRequest
+    public class DeleteProjectRequest
     {
         [Required]
-        [StringLength(32)]
-        [FromRoute(Name = "name")]
-        public string Name { get; set; }
+        [FromRoute(Name = "id")]
+        public Guid Id { get; set; }
 
         [FromBody]
         [Required]

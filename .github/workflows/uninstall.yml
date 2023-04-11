@@ -1,0 +1,43 @@
+name: uninstall
+on:
+  workflow_dispatch:
+    
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-region: ${{ secrets.AWS_REGION }}
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        mask-aws-account-id: true
+
+    - name: Login Image Registry
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Delete API Gateway
+      run: |
+        aws apigateway delete-rest-api --rest-api-id developer-api
+        aws apigateway delete-usage-plan --usage-plan-id developer-api
+        aws apigateway delete-api-key --api-key developer-api
+      continue-on-error: true
+
+    - name: Delete Functions
+      run: aws lambda delete-function --function-name developer-api
+      continue-on-error: true
+
+    - name: Delete Database Tables
+      run: |
+        aws dynamodb delete-table --table-name projects
+        aws dynamodb delete-table --table-name licences
+      continue-on-error: true
+
+    - name: Delete Image Repository
+      run: aws ecr delete-repository --repository-name developer-api --force
+      continue-on-error: true
+
+    - name: Delete Security Roles
+      run: aws iam delete-role --role-name developer-api
+      continue-on-error: true

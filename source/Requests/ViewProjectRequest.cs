@@ -3,11 +3,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Developer.Api.Requests
 {
-    public class DecrementRequest
+    public class ViewProjectRequest
     {
         [Required]
-        [StringLength(32)]
-        [FromRoute(Name = "name")]
-        public string Name { get; set; }
+        [FromRoute(Name = "id")]
+        public Guid Id { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 using Developer.Api.Domain;
 using Developer.Api.Requests;
+using Developer.Api.Responses;
 using EnsureThat;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -17,25 +18,39 @@ namespace Developer.Api.Controllers
         }
 
         [HttpGet("")]
-        public Task<List<Project>> Get()
+        public async Task<ListProjectResponse> Get(ListProjectRequest request)
         {
-            var result = new List<Project>();
+            var result = new ListProjectResponse();
 
-            return Task.FromResult(result);
+            if (ModelState.IsValid)
+            {
+                var response = await Mediator.Send(new Handlers.GetProjectsRequest());
+
+                if (response != null)
+                {
+                    result.Projects = response.Projects;
+
+                    result.Status = response.Status;
+                }
+            }
+
+            return result;
         }
 
         [HttpGet("{id}")]
-        public async Task<Project?> Get(ViewProjectRequest request)
+        public async Task<ViewProjectResponse> Get(ViewProjectRequest request)
         {
-            Project? result = null;
+            var result = new ViewProjectResponse();
 
             if (ModelState.IsValid)
             {
                 var response = await Mediator.Send(new Handlers.GetProjectRequest { Id = request.Id });
 
-                if (response != null && response.Status)
+                if (response != null)
                 {
-                    result = response.Project;
+                    result.Project = response.Project;
+
+                    result.Status = response.Status;
                 }
             }
 
@@ -43,17 +58,19 @@ namespace Developer.Api.Controllers
         }
 
         [HttpPost("")]
-        public async Task<Project?> Post([FromBody] CreateProjectRequest request)
+        public async Task<CreateProjectResponse> Post([FromBody] CreateProjectRequest request)
         {
-            Project? result = null;
+            var result = new CreateProjectResponse();
 
             if (ModelState.IsValid)
             {
                 var response = await Mediator.Send(new Handlers.CreateProjectRequest { Name = request.Name, Description = request.Description });
 
-                if (response != null && response.Status)
+                if (response != null)
                 {
-                    result = response.Project;
+                    result.Project = response.Project;
+
+                    result.Status = response.Status;
                 }
             }
 
@@ -61,17 +78,19 @@ namespace Developer.Api.Controllers
         }
 
         [HttpPut("")]
-        public async Task<Project?> Put([FromBody] UpdateProjectRequest request)
+        public async Task<UpdateProjectResponse> Put([FromBody] UpdateProjectRequest request)
         {
-            Project? result = null;
+            var result = new UpdateProjectResponse();
 
             if (ModelState.IsValid)
             {
                 var response = await Mediator.Send(new Handlers.UpdateProjectRequest { Id = request.Id, Name = request.Name, Description = request.Description });
 
-                if (response != null && response.Status)
+                if (response != null)
                 {
-                    result = response.Project;
+                    result.Project = response.Project;
+
+                    result.Status = response.Status;
                 }
             }
 
@@ -79,9 +98,9 @@ namespace Developer.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<bool> Delete(DeleteProjectRequest request)
+        public async Task<DeleteProjectResponse> Delete(DeleteProjectRequest request)
         {
-            var result = false;
+            var result = new DeleteProjectResponse();
 
             if (ModelState.IsValid)
             {
@@ -89,7 +108,7 @@ namespace Developer.Api.Controllers
 
                 if (response != null)
                 {
-                    result = response.Status;
+                    result.Status = response.Status;
                 }
             }
 

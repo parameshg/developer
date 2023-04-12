@@ -47,11 +47,15 @@ namespace Developer.Api
 
                     services.AddSingleton<IAmazonDynamoDB>(new AmazonDynamoDBClient(region));
                 }
+
+                services.AddSingleton<IDynamoDBContext, DynamoDBContext>(i => new DynamoDBContext(i.GetService<IAmazonDynamoDB>()));
+
+                services.AddTransient<IProjectRepository, ProjectRepository>();
             }
-
-            services.AddSingleton<IDynamoDBContext, DynamoDBContext>(i => new DynamoDBContext(i.GetService<IAmazonDynamoDB>()));
-
-            services.AddTransient<IProjectRepository, ProjectRepository>();
+            else
+            {
+                services.AddTransient<IProjectRepository, NullRepository>();
+            }
 
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining(typeof(Startup)));
 

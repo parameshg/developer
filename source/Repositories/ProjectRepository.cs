@@ -6,6 +6,8 @@ namespace Developer.Api.Repositories
 {
     public interface IProjectRepository
     {
+        Task<List<Project>> GetProjects();
+
         Task<Project> GetProject(Guid id);
 
         Task<bool> CreateProject(Guid id, string? name, string? description);
@@ -36,6 +38,30 @@ namespace Developer.Api.Repositories
         public ProjectRepository(IDynamoDBContext context)
         {
             db = EnsureArg.IsNotNull(context);
+        }
+
+        public async Task<List<Project>> GetProjects()
+        {
+            var result = new List<Project>();
+
+            var conditions = new List<ScanCondition>();
+
+            var entities = await db.ScanAsync<Entity>(conditions).GetRemainingAsync();
+
+            if (entities != null)
+            {
+                foreach(var entity in entities)
+                {
+                    result.Add(new Project
+                    {
+                        Id = Guid.Parse(entity.Id),
+                        Name = entity.Name,
+                        Description = entity.Description
+                    });
+                }
+            }
+
+            return result;
         }
 
         public async Task<Project> GetProject(Guid id)
